@@ -1,8 +1,5 @@
 import javax.naming.SizeLimitExceededException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class Campeonato {
     private String nome;
@@ -27,11 +24,11 @@ public class Campeonato {
 
     public String simularJogos(int timeA, int timeB) throws Exception {
 
-        validarFinalCamp();
-
         String jogoA = times.get(timeA).getNome() + "-" + times.get(timeB).getNome();
-        if(jogosRealizados.contains(jogoA)){
-            throw new Exception("Erro ja realizado!");
+        String jogoB = times.get(timeB).getNome() + "-" + times.get(timeA).getNome();
+
+        if(jogosRealizados.contains(jogoA) || jogosRealizados.contains(jogoB)){
+            throw new Exception("Jogo ja realizado!");
         }
         jogosRealizados.add(jogoA);
 
@@ -47,12 +44,36 @@ public class Campeonato {
 
         jogo.encerrarJogo(golsTimeA, golsTimeB);
 
-        return times.get(timeA).getNome() + ": " + golsTimeA + " x " + times.get(timeB).getNome() + ": " + golsTimeB;
+        if(!validarFinalCamp()){
+            return imprimirTabela();
+        };
+
+        return "";
     }
 
-    public void validarFinalCamp(){
-        if(jogosRealizados.size() == (jogos.size() * jogos.size() - 1) ){
-            System.out.println("Campeonato Finalizado!");
+    public boolean validarFinalCamp(){
+        return jogosRealizados.size() != ((times.size() * (times.size() - 1) / 2));
+    }
+
+    public String imprimirTabela(){
+        Collections.sort(times, new Comparator<Time>(){
+            public int compare(Time time1, Time time2){
+                return Integer.compare(time2.getPontos(), time1.getPontos());
+            }
+        } );
+
+        StringBuilder tabela = new StringBuilder();
+
+        for(Time time : times){
+            tabela.append("Nome: ").append(time.getNome()).append(" || Total de Jogos: ").append(time.getJogos())
+                    .append(" || Vitorias: ").append(time.getVitorias()).append(" || Empates: ").append(time.getEmpates())
+                    .append(" || Derrotas: ").append(time.getDerrotas())
+                    .append(" || Pontos: ").append(time.getPontos()).append(" || Gols Pro: ").append(time.getGolsPro())
+                    .append(" || Gols Contra: ").append(time.getGolsContra())
+                    .append(" || Saldo Gols: ").append((time.getGolsPro()-time.getGolsContra()))
+                    .append("\n");
         }
+
+        return tabela.toString();
     }
 }
