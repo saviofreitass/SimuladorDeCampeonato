@@ -22,13 +22,17 @@ public class Campeonato {
         this.times.add(time);
     }
 
-    public String simularJogos(int timeA, int timeB) throws Exception {
+    public void simularJogos(int timeA, int timeB) throws Exception {
+
+        if(!validarFinalCamp()){
+            throw new Exception("Todos os jogos possíveis já foram realizados! Utilize Sair para finalizar o campeonato!");
+        };
 
         String jogoA = times.get(timeA).getNome() + "-" + times.get(timeB).getNome();
         String jogoB = times.get(timeB).getNome() + "-" + times.get(timeA).getNome();
 
         if(jogosRealizados.contains(jogoA) || jogosRealizados.contains(jogoB)){
-            throw new Exception("Jogo ja realizado!");
+            throw new Exception("Este jogo já foi realizado! Escolha outra dupla de times");
         }
         jogosRealizados.add(jogoA);
 
@@ -43,12 +47,6 @@ public class Campeonato {
         int golsTimeB = random.nextInt(6);
 
         jogo.encerrarJogo(golsTimeA, golsTimeB);
-
-        if(!validarFinalCamp()){
-            return imprimirTabela();
-        };
-
-        return "";
     }
 
     public boolean validarFinalCamp(){
@@ -63,17 +61,65 @@ public class Campeonato {
         } );
 
         StringBuilder tabela = new StringBuilder();
+        tabela.append(String.format("%-15s %5s %8s %7s %8s %8s %13s %14s %8s\n",
+                "Nome do Time |", "Jogos |", "Vitória |", "Empate |", "Derrota |", "Pontos |", "Gols Marcados |", "Gols Sofridos |", "Saldo Gols"));
 
-        for(Time time : times){
-            tabela.append("Nome: ").append(time.getNome()).append(" || Total de Jogos: ").append(time.getJogos())
-                    .append(" || Vitorias: ").append(time.getVitorias()).append(" || Empates: ").append(time.getEmpates())
-                    .append(" || Derrotas: ").append(time.getDerrotas())
-                    .append(" || Pontos: ").append(time.getPontos()).append(" || Gols Pro: ").append(time.getGolsPro())
-                    .append(" || Gols Contra: ").append(time.getGolsContra())
-                    .append(" || Saldo Gols: ").append((time.getGolsPro()-time.getGolsContra()))
-                    .append("\n");
+        tabela.append("-".repeat(105)).append("\n");
+
+        for (Time time : times) {
+            tabela.append(String.format("%-15s %3d %8d %7d %8d %8d %13d %14d %14d\n",
+                    time.getNome(),
+                    time.getJogos(),
+                    time.getVitorias(),
+                    time.getEmpates(),
+                    time.getDerrotas(),
+                    time.getPontos(),
+                    time.getGolsPro(),
+                    time.getGolsContra(),
+                    time.getGolsPro() - time.getGolsContra()
+            ));
         }
 
         return tabela.toString();
+    }
+
+    public String imprimirListaTimes(){
+        StringBuilder lista = new StringBuilder();
+        int i = 0;
+        for(Time time : times){
+            lista.append(i).append("-").append(time.getNome()).append(" || ");
+            i++;
+        }
+        return lista.toString();
+    }
+
+    public void simularAutomaticamente() throws Exception {
+        if(!validarFinalCamp()){
+            throw new Exception("Todos os jogos possíveis já foram realizados! Utilize SAIR para finalizar o campeonato!");
+        };
+
+        for(int i = 0; i < times.size(); i++){
+            for(int j = i+1; j < times.size(); j++){
+                String jogoA = times.get(i).getNome() + "-" + times.get(j).getNome();
+                String jogoB = times.get(j).getNome() + "-" + times.get(i).getNome();
+
+                if(jogosRealizados.contains(jogoA) || jogosRealizados.contains(jogoB)){
+                    throw new Exception("Este jogo já foi realizado! Escolha outra dupla de times");
+                }
+                jogosRealizados.add(jogoA);
+
+                ArrayList<Time> timesJogo = new ArrayList<>();
+                timesJogo.add(times.get(i));
+                timesJogo.add(times.get(j));
+                Jogo jogo = new Jogo(timesJogo);
+                jogos.add(jogo);
+
+                Random random = new Random();
+                int golsTimeA = random.nextInt(6);
+                int golsTimeB = random.nextInt(6);
+
+                jogo.encerrarJogo(golsTimeA, golsTimeB);
+            }
+        }
     }
 }
