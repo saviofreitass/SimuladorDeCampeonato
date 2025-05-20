@@ -22,6 +22,8 @@ public class Campeonato {
         this.times.add(time);
     }
 
+    boolean primeiraSimulacao = true;
+
     public void simularJogos(int timeA, int timeB) throws Exception {
 
         if(!validarFinalCamp()){
@@ -47,6 +49,7 @@ public class Campeonato {
         int golsTimeB = random.nextInt(6);
 
         jogo.encerrarJogo(golsTimeA, golsTimeB);
+        primeiraSimulacao = false;
     }
 
     public boolean validarFinalCamp(){
@@ -80,7 +83,7 @@ public class Campeonato {
             ));
         }
 
-        return tabela.toString();
+        return !times.isEmpty() ? tabela.toString() : "Nenhum time cadastrado no campeonato!";
     }
 
     public String imprimirListaTimes(){
@@ -94,6 +97,11 @@ public class Campeonato {
     }
 
     public void simularAutomaticamente() throws Exception {
+
+        if(!primeiraSimulacao){
+            throw new Exception("Ja foi iniciada a simulação manual, conclua por meio dela!");
+        }
+
         if(!validarFinalCamp()){
             throw new Exception("Todos os jogos possíveis já foram realizados! Utilize SAIR para finalizar o campeonato!");
         };
